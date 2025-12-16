@@ -30,6 +30,10 @@ Thumbs.db
 logs/
 *.log
 
+# SSL/TLS certificates
+nginx/certs/*.pem
+nginx/certs/*.key
+
 # Temporary files
 tmp/
 temp/

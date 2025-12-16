@@ -42,6 +42,45 @@ npm run build
 npm test
 ```
 
+## Docker-Deployment
+
+### SSL-Zertifikate generieren (für Development)
+
+```bash
+mkdir -p nginx/certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx/certs/privkey.pem \
+  -out nginx/certs/fullchain.pem \
+  -subj "/CN=localhost"
+```
+
+### Container starten
+
+```bash
+# Build und start
+npm run build
+docker compose up -d --build
+
+# Logs anzeigen
+docker compose logs -f
+
+# Health check
+curl -k https://localhost/health
+
+# Container stoppen
+docker compose down
+```
+
+## CI/CD
+
+Das Projekt verwendet GitHub Actions für automatisierte Tests:
+
+- **Smoke Tests**: Validiert Docker-Setup, SSL, und Health-Endpoints
+- **Security Scan**: Trivy-Scanner für Vulnerabilities  
+- **Config Validation**: Prüft docker-compose.yml, nginx.conf, und JSON-Configs
+
+Workflows befinden sich in `.github/workflows/`.
+
 ## Lizenz
 
 Ai,Ki,Multi,Gentlify,Hopeful
