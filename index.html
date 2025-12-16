@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Annabelle.AI - RAM Specialist</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+      }
+
+      h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        opacity: 0.9;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      input, button {
+        padding: 12px 20px;
+        border: 2px solid #667eea;
+        border-radius: 6px;
+        font-size: 1em;
+      }
+
+      input {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 600;
+      }
+
+      button:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .results {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .result-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        border-left: 4px solid #667eea;
+      }
+
+      .result-id {
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 5px;
+      }
+
+      .result-content {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #667eea;
+      }
+
+      .error {
+        background: #fee;
+        color: #c33;
+        padding: 15px;
+        border-radius: 6px;
+        border-left: 4px solid #c33;
+        margin-bottom: 20px;
+      }
+
+      .info {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🧠 Annabelle.AI</h1>
+        <p class="subtitle">On-device RAM Specialist für das Annabelle-JOSI System</p>
+      </header>
+
+      <div class="card">
+        <h2>📊 Statistiken</h2>
+        <div class="stats" id="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="totalEntries">0</div>
+            <div class="stat-label">Einträge</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="memoryUsage">0 MB</div>
+            <div class="stat-label">RAM Nutzung</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="workerStatus">⏳</div>
+            <div class="stat-label">Worker Status</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>➕ Daten hinzufügen</h2>
+        <div class="controls">
+          <input type="text" id="contentInput" placeholder="Inhalt eingeben..." />
+          <button id="addBtn">Hinzufügen</button>
+          <button id="addBulkBtn">100 Testeinträge</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🔍 Suche</h2>
+        <div class="controls">
+          <input type="text" id="searchInput" placeholder="Suchbegriff eingeben..." />
+          <button id="searchBtn">Suchen</button>
+          <button id="clearBtn">Index leeren</button>
+        </div>
+        <div id="results" class="results"></div>
+      </div>
+
+      <div class="card">
+        <h2>ℹ️ System Info</h2>
+        <div class="info">
+          <strong>Optimiert für:</strong> Geräte mit ~2 GB RAM<br>
+          <strong>Architektur:</strong> Web Worker-basiert für minimale Hauptthread-Blockierung<br>
+          <strong>Features:</strong> Memory Monitoring, Batch Processing, Cache Management
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/demo.ts"></script>
+  </body>
+</html>

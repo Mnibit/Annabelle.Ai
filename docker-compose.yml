@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  annabelle-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    networks:
+      - annabelle-network
+
+  # Backend stub for testing
+  backend-stub:
+    image: node:18-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend-stub:/app
+    command: node server.js
+    networks:
+      - annabelle-network
+
+networks:
+  annabelle-network:
+    driver: bridge
