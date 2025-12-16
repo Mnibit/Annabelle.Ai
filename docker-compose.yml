@@ -1,3 +1,7 @@
+# Docker Compose Configuration
+# Note: The 'version' field is deprecated in Compose Specification and is intentionally omitted
+# See: https://docs.docker.com/compose/compose-file/04-version-and-name/
+
 services:
   # Nginx reverse proxy with SSL
   nginx:

@@ -23,12 +23,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Set up Docker Compose
-        # For older Ubuntu versions or specific needs, docker-compose might need to be installed separately.
-        # On newer Ubuntu, docker-compose plugin is often available with docker.
+      - name: Verify Docker Compose
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose || echo "docker-compose might already be available as a Docker plugin."
+          if ! docker compose version &>/dev/null; then
+            echo "Docker Compose plugin not found, attempting installation..."
+            sudo apt-get update
+            sudo apt-get install -y docker-compose-plugin || {
+              echo "Failed to install docker-compose-plugin"
+              exit 1
+            }
+          fi
+          docker compose version
 
       - name: Generate SSL certificates
         run: |
@@ -105,7 +110,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
