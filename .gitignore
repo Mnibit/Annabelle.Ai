@@ -162,7 +162,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions for Python (*.so covered in C/C++ section)
+# C extensions for Python
+# Note: *.so from C/C++ section applies here. Use !pattern to include specific extensions if needed.
 
 # Distribution / packaging
 .Python
@@ -278,6 +279,7 @@ $RECYCLE.BIN/
 *.iml
 *.iws
 *.ipr
+# out/ also used by Node.js
 out/
 
 # Eclipse
@@ -301,12 +303,11 @@ nbdist/
 *.swo
 *~
 .*.sw?
-.*.swp
 
 # Emacs
 # *~ covered in Vim section
-\#*\#
-.\#*
+#*#
+.#*
 
 # ============================================
 # Build Systems & Tools
