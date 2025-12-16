@@ -1,0 +1,24 @@
+{
+  "name": "annabelle-ai",
+  "version": "1.0.0",
+  "description": "Ai,Ki,Multi,Gentlify,Hopeful",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest",
+    "test:worker": "jest --testPathPattern=worker"
+  },
+  "keywords": [
+    "ai",
+    "ki",
+    "multi",
+    "gentlify",
+    "hopeful"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0"
+  }
+}
