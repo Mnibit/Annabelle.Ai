@@ -100,6 +100,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+# Note: build/ also used by Node.js, but Gradle has specific exceptions above
 
 # ============================================
 # Node.js / JavaScript
@@ -161,8 +162,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions for Python
-*.so
+# C extensions for Python (*.so covered in C/C++ section)
 
 # Distribution / packaging
 .Python
@@ -260,9 +260,6 @@ dmesg.log
 # Temporary system files
 *.tmp
 *.temp
-*.swp
-*.swo
-*~
 .DS_Store
 Thumbs.db
 ehthumbs.db
@@ -304,6 +301,7 @@ nbdist/
 *.swo
 *~
 .*.sw?
+.*.swp
 
 # Emacs
 *~
@@ -326,8 +324,7 @@ _deps/
 # Autotools
 .deps/
 .libs/
-*.la
-*.lo
+# *.la and *.lo covered in C/C++ section
 Makefile.in
 /autom4te.cache/
 /aclocal.m4
