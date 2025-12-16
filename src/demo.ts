@@ -66,7 +66,7 @@ async function addEntry() {
 
   try {
     const entry: IndexEntry = {
-      id: `entry-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `entry-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       content,
       metadata: {
         created: new Date().toISOString(),
@@ -98,7 +98,7 @@ async function addBulkEntries() {
     for (let i = 0; i < 100; i++) {
       entries.push({
         id: `test-${Date.now()}-${i}`,
-        content: `Test entry ${i}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Entry number ${i} with random data ${Math.random().toString(36).substr(2, 9)}`,
+        content: `Test entry ${i}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Entry number ${i} with random data ${Math.random().toString(36).slice(2, 11)}`,
         metadata: {
           index: i,
           created: new Date().toISOString(),

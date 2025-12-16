@@ -65,12 +65,23 @@ export class AnnabelleAI {
   private async sendToWorker(
     worker: Worker,
     type: string,
-    payload?: unknown
+    payload?: unknown,
+    timeout = 30000
   ): Promise<WorkerResponse> {
     const id = `msg-${this.messageId++}`;
 
-    return new Promise((resolve) => {
-      this.pendingMessages.set(id, resolve);
+    return new Promise((resolve, reject) => {
+      // Set up timeout
+      const timeoutId = setTimeout(() => {
+        this.pendingMessages.delete(id);
+        reject(new Error(`Worker message timeout after ${timeout}ms`));
+      }, timeout);
+
+      // Set up resolver that clears timeout
+      this.pendingMessages.set(id, (response) => {
+        clearTimeout(timeoutId);
+        resolve(response);
+      });
 
       const message: WorkerMessage = {
         type,
