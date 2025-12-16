@@ -1,0 +1,41 @@
+{
+  "name": "annabelle-ai",
+  "version": "0.1.0",
+  "description": "On-device RAM specialist for the Annabelle-JOSI System",
+  "type": "module",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "annabelle",
+    "josi",
+    "ram-optimization",
+    "web-worker",
+    "indexer",
+    "retriever"
+  ],
+  "author": "Mnibit",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "jsdom": "^23.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.7",
+    "vite-plugin-static-copy": "^1.0.0",
+    "vitest": "^1.0.4"
+  }
+}

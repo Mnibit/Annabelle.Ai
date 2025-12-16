@@ -1,0 +1,59 @@
+# Docker Compose Configuration
+# Note: The 'version' field is deprecated in Compose Specification and is intentionally omitted
+# See: https://docs.docker.com/compose/compose-file/04-version-and-name/
+
+services:
+  # Nginx reverse proxy with SSL
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend-stub
+      - annabelle-ai
+    networks:
+      - annabelle-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  annabelle-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run build
+    networks:
+      - annabelle-network
+
+  # Backend stub for testing
+  backend-stub:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./backend-stub:/app
+    command: node server.js
+    networks:
+      - annabelle-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  annabelle-network:
+    driver: bridge

@@ -1,0 +1,154 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [ main, develop, feat/* ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  COMPOSE_PROJECT_NAME: josi_ci
+
+jobs:
+  smoke-test:
+    name: Smoke Tests (Docker)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Verify Docker Compose
+        run: |
+          if ! docker compose version &>/dev/null; then
+            echo "Docker Compose plugin not found, attempting installation..."
+            sudo apt-get update
+            sudo apt-get install -y docker-compose-plugin || {
+              echo "Failed to install docker-compose-plugin"
+              exit 1
+            }
+          fi
+          docker compose version
+
+      - name: Generate SSL certificates
+        run: |
+          mkdir -p nginx/certs
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout nginx/certs/privkey.pem \
+            -out nginx/certs/fullchain.pem \
+            -subj "/CN=localhost"
+
+      - name: Build and start containers
+        run: |
+          docker compose up -d --build
+          echo "Containers started, waiting for readiness..."
+
+      - name: Wait for health endpoint
+        # Use a loop to wait for Nginx and backend to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -k --fail https://localhost/health; then
+              echo "Health check passed.";
+              exit 0;
+            fi
+            echo "Waiting for health endpoint... Attempt $i/30";
+            sleep 5; # Wait 5 seconds between attempts
+          done
+          echo "Health check failed after multiple attempts. Inspect logs for details.";
+          docker compose logs; # Output logs for debugging
+          exit 1;
+
+      - name: Verify health endpoint
+        run: |
+          RESPONSE=$(curl -k --silent https://localhost/health)
+          echo "Health response: $RESPONSE"
+          echo "$RESPONSE" | grep -q '"status":"ok"' || exit 1
+
+      - name: Check container status
+        run: |
+          docker compose ps
+          docker compose ps | grep -q "Up" || exit 1
+
+      - name: Test static file serving
+        run: |
+          curl -k --fail --silent --head https://localhost/ || exit 1
+          echo "✓ Static file serving works"
+
+      - name: Check SSL redirect
+        run: |
+          REDIRECT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/)
+          if [ "$REDIRECT" = "301" ]; then
+            echo "✓ HTTP to HTTPS redirect working"
+          else
+            echo "✗ Expected 301 redirect, got $REDIRECT"
+            exit 1
+          fi
+
+      - name: View container logs (on failure)
+        if: failure()
+        run: |
+          echo "=== Nginx logs ==="
+          docker compose logs nginx
+          echo "=== Container status ==="
+          docker compose ps
+
+      - name: Tear down containers
+        if: always() # Ensure this step runs even if previous steps fail
+        run: docker compose down --volumes
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  config-validation:
+    name: Configuration Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: |
+          docker compose config > /dev/null
+          echo "✓ docker-compose.yml is valid"
+
+      - name: Validate JSON configs
+        run: |
+          for file in config/*.json; do
+            if [ -f "$file" ]; then
+              echo "Validating $file..."
+              python3 -m json.tool "$file" > /dev/null || exit 1
+            fi
+          done
+          echo "✓ All JSON configs are valid"
+
+      - name: Check nginx config syntax
+        run: |
+          docker run --rm -v $(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+            nginx:alpine nginx -t
+          echo "✓ Nginx config is valid"
