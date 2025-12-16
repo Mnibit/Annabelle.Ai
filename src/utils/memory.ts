@@ -3,6 +3,16 @@
  * Optimized for devices with ~2GB RAM
  */
 
+interface MemoryInfo {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: MemoryInfo;
+}
+
 export class MemoryMonitor {
   private maxMemoryMB: number;
   private warningThreshold: number;
@@ -16,8 +26,9 @@ export class MemoryMonitor {
    * Get current memory usage estimate
    */
   getMemoryUsage(): number {
-    if ('memory' in performance && (performance as any).memory) {
-      const memInfo = (performance as any).memory;
+    const perf = performance as PerformanceWithMemory;
+    if ('memory' in performance && perf.memory) {
+      const memInfo = perf.memory;
       return memInfo.usedJSHeapSize / (1024 * 1024); // MB
     }
     return 0;
@@ -35,8 +46,9 @@ export class MemoryMonitor {
    * Get memory statistics
    */
   getStats() {
-    if ('memory' in performance && (performance as any).memory) {
-      const memInfo = (performance as any).memory;
+    const perf = performance as PerformanceWithMemory;
+    if ('memory' in performance && perf.memory) {
+      const memInfo = perf.memory;
       return {
         used: memInfo.usedJSHeapSize / (1024 * 1024),
         total: memInfo.totalJSHeapSize / (1024 * 1024),
