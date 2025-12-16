@@ -7,6 +7,11 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 env:
   COMPOSE_PROJECT_NAME: josi_ci
 
@@ -119,7 +124,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -147,8 +152,18 @@ jobs:
           done
           echo "✓ All JSON configs are valid"
 
+      - name: Generate SSL certificates for validation
+        run: |
+          mkdir -p nginx/certs
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout nginx/certs/privkey.pem \
+            -out nginx/certs/fullchain.pem \
+            -subj "/CN=localhost"
+
       - name: Check nginx config syntax
         run: |
-          docker run --rm -v $(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+          docker run --rm \
+            -v $(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+            -v $(pwd)/nginx/certs:/etc/nginx/certs:ro \
             nginx:alpine nginx -t
           echo "✓ Nginx config is valid"
