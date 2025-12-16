@@ -1,3 +1,12 @@
+# ============================================
+# AI-Specific Operating System Development
+# ============================================
+# This .gitignore supports a multi-language development environment
+# including C/C++, Java, Node.js, Python, and OS-level development
+
+# ============================================
+# C/C++ Compiled Files
+# ============================================
 # Prerequisites
 *.d
 
@@ -19,6 +28,7 @@
 
 # Compiled Dynamic libraries
 *.so
+*.so.*
 *.dylib
 *.dll
 
@@ -36,6 +46,330 @@
 *.exe
 *.out
 *.app
+*.x86
+*.x86_64
+*.hex
 
-# debug information files
+# Debug information files
 *.dwo
+*.su
+
+# ============================================
+# Java Development
+# ============================================
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+# Note: build/ also used by Node.js, but Gradle has specific exceptions above
+
+# ============================================
+# Node.js / JavaScript
+# ============================================
+# Dependencies
+node_modules/
+jspm_packages/
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+lib-cov
+coverage
+*.lcov
+.nyc_output
+
+# Build outputs
+dist/
+dist-ssr/
+# build/ covered in Gradle section (applies to Node.js too)
+.next/
+out/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ============================================
+# Python (AI/ML Development)
+# ============================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions for Python
+# Note: *.so from C/C++ section applies here. Use !pattern to include specific extensions if needed.
+
+# Distribution / packaging
+.Python
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# ML/AI specific
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.pth
+*.onnx
+*.pb
+*.tflite
+models/
+checkpoints/
+*.weights
+
+# ============================================
+# OS-Level Development & System Files
+# ============================================
+# Core dumps
+core
+core.*
+*.core
+*.dump
+
+# System logs
+# *.log covered in Java section (applies globally)
+*.log.*
+syslog
+messages
+dmesg.log
+
+# Kernel modules
+*.ko
+*.mod.c
+
+# Memory dumps
+*.mem
+*.dmp
+
+# ISO images
+*.iso
+*.img
+
+# Disk images
+*.vmdk
+*.vdi
+*.qcow2
+
+# Temporary system files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ============================================
+# IDEs and Editors
+# ============================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+# out/ also used by Node.js
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+*.launch
+.metadata
+bin/
+tmp/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+# dist/ covered in Node.js section
+nbdist/
+.nb-gradle/
+
+# Vim
+*.swp
+*.swo
+*~
+.*.sw?
+
+# Emacs
+# *~ covered in Vim section
+#*#
+.#*
+
+# ============================================
+# Build Systems & Tools
+# ============================================
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Autotools
+.deps/
+.libs/
+# *.la and *.lo covered in C/C++ section
+Makefile.in
+/autom4te.cache/
+/aclocal.m4
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+config.h
+config.h.in
+config.log
+config.status
+libtool
+ltmain.sh
+
+# ============================================
+# Documentation
+# ============================================
+# Generated documentation
+docs/_build/
+site/
+.mkdocs_cache/
+
+# ============================================
+# Miscellaneous
+# ============================================
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Lock files (keep package-lock.json and yarn.lock for Node.js projects)
+# Gemfile.lock
+# composer.lock
+
+# OS generated files
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
