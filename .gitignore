@@ -131,7 +131,7 @@ coverage
 # Build outputs
 dist/
 dist-ssr/
-build/
+# build/ covered in Gradle section (applies to Node.js too)
 .next/
 out/
 
@@ -234,7 +234,7 @@ core.*
 *.dump
 
 # System logs
-*.log
+# *.log covered in Java section (applies globally)
 *.log.*
 syslog
 messages
@@ -292,7 +292,7 @@ tmp/
 # NetBeans
 nbproject/private/
 nbbuild/
-dist/
+# dist/ covered in Node.js section
 nbdist/
 .nb-gradle/
 
@@ -304,7 +304,7 @@ nbdist/
 .*.swp
 
 # Emacs
-*~
+# *~ covered in Vim section
 \#*\#
 .\#*
 
