@@ -13,8 +13,10 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/certs:/etc/nginx/certs:ro
       - ./dist:/usr/share/nginx/html:ro
+      - ./frontend:/usr/share/nginx/html/frontend:ro
     depends_on:
       - backend-stub
+      - backend
       - annabelle-ai
     networks:
       - annabelle-network
@@ -37,6 +39,29 @@ services:
     command: npm run build
     networks:
       - annabelle-network
+
+  # Backend with Lifesync API and JWT signing
+  backend:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - ./backend/keys:/app/keys:ro
+      - ./backend/data:/app/data
+    ports:
+      - "8443:8443"
+    environment:
+      - NODE_ENV=production
+      - PORT=8443
+    command: sh -c "npm install && npm start"
+    networks:
+      - annabelle-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8443/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   # Backend stub for testing
   backend-stub:
