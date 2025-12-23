@@ -6,8 +6,8 @@ Vielen Dank für Ihr Interesse an der Weiterentwicklung von Annabelle.AI!
 
 1. Repository klonen
 ```bash
-git clone git@github.com:yourorg/annabelle-ai.git
-cd annabelle-ai
+git clone git@github.com:Mnibit/Annabelle.git
+cd Annabelle
 ```
 
 2. Abhängigkeiten installieren
