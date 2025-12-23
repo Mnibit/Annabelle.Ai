@@ -80,3 +80,9 @@ temp/
 
 # debug information files
 *.dwo
+
+# Environment files
+.env
+
+# Private keys and sensitive data
+backend/keys/private.pem
