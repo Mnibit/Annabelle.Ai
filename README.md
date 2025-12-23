@@ -12,8 +12,8 @@ Annabelle.AI ist die on‑device RAM‑Spezialistin für das Annabelle‑JOSI Sy
 
 ### Lokale Einrichtung
 ```bash
-git clone git@github.com:yourorg/annabelle-ai.git
-cd annabelle-ai
+git clone git@github.com:Mnibit/Annabelle.git
+cd Annabelle
 npm ci
 # optional: dev container
 docker compose up --build
