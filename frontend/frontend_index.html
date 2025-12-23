@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annabelle + JOSI v0.3 - IndexedDB Memory Core</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-id {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .result-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .toast.error {
+            border-left: 4px solid #f44336;
+        }
+
+        .toast.info {
+            border-left: 4px solid #2196f3;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Annabelle + JOSI v0.3</h1>
+            <p class="subtitle">IndexedDB Memory Core with Worker Bridge</p>
+        </header>
+
+        <div class="card">
+            <h2>📊 Statistics</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="atomCount">0</div>
+                    <div class="stat-label">Memory Atoms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="workerStatus">⏳</div>
+                    <div class="stat-label">Worker Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="dbStatus">⏳</div>
+                    <div class="stat-label">IndexedDB Status</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>➕ Store Memory Atom</h2>
+            <div class="controls">
+                <input type="text" id="contentInput" placeholder="Enter memory content..." />
+                <button id="storeBtn">Store Atom</button>
+                <button id="storeBulkBtn">Store 50 Test Atoms</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Recall / Search</h2>
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Search term..." />
+                <button id="searchBtn">Search</button>
+                <button id="clearBtn">Clear Memory</button>
+                <button id="syncBtn">Sync to Lifesync</button>
+            </div>
+            <div id="results" class="results"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+    <script type="module">
+        // ===== MemoryAtom Class =====
+        class MemoryAtom {
+            constructor({id, d, t = Date.now(), ty = 'generic'}) {
+                this.id = id || crypto.randomUUID?.() || `atom-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                this.d = d; // delta / content
+                this.t = t; // timestamp
+                this.ty = ty; // type
+            }
+
+            serialize() {
+                return {id: this.id, d: this.d, t: this.t, ty: this.ty};
+            }
+        }
+
+        // ===== MemoryCore Class =====
+        class MemoryCore {
+            constructor(dbName = 'annabelle-memory') {
+                this.dbName = dbName;
+                this.cache = new Map();
+                this.db = null;
+                this._openDB();
+            }
+
+            async _openDB() {
+                this.db = await new Promise((res, rej) => {
+                    const req = indexedDB.open(this.dbName, 1);
+                    req.onupgradeneeded = () => {
+                        req.result.createObjectStore('atoms', {keyPath: 'id'});
+                    };
+                    req.onsuccess = () => res(req.result);
+                    req.onerror = () => rej(req.error);
+                });
+                console.log('IndexedDB opened successfully');
+                // Load cache from DB
+                await this._loadCache();
+            }
+
+            async _loadCache() {
+                if (!this.db) return;
+                const tx = this.db.transaction('atoms', 'readonly');
+                const store = tx.objectStore('atoms');
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    req.result.forEach(atom => {
+                        this.cache.set(atom.id, atom);
+                    });
+                    console.log(`Loaded ${this.cache.size} atoms into cache`);
+                };
+            }
+
+            async store(content, type='user_input') {
+                if (!content || typeof content !== 'string' || !content.trim()) {
+                    throw new Error('Empty payload');
+                }
+                const atom = new MemoryAtom({d: content, ty: type});
+                this.cache.set(atom.id, atom);
+                
+                if (this.db) {
+                    const tx = this.db.transaction('atoms','readwrite');
+                    tx.objectStore('atoms').put(atom.serialize());
+                    await new Promise((res, rej) => {
+                        tx.oncomplete = () => res();
+                        tx.onerror = () => rej(tx.error);
+                    });
+                }
+                return atom;
+            }
+
+            async recall(query) {
+                // Placeholder: Simple substring match in cache
+                const results = [];
+                const lowerQuery = query.toLowerCase();
+                for (const atom of this.cache.values()) {
+                    if (atom.d.toLowerCase().includes(lowerQuery)) {
+                        results.push(atom);
+                        if (results.length >= 20) break;
+                    }
+                }
+                return results;
+            }
+
+            async clear() {
+                this.cache.clear();
+                if (this.db) {
+                    const tx = this.db.transaction('atoms','readwrite');
+                    tx.objectStore('atoms').clear();
+                    await new Promise((res, rej) => {
+                        tx.oncomplete = () => res();
+                        tx.onerror = () => rej(tx.error);
+                    });
+                }
+            }
+
+            getCount() {
+                return this.cache.size;
+            }
+
+            getAllAtoms() {
+                return Array.from(this.cache.values());
+            }
+        }
+
+        // ===== WorkerBridge via transport.js pattern =====
+        function createWorkerBridge(worker) {
+            let idCounter = 1;
+            const pending = new Map();
+
+            worker.onmessage = (ev) => {
+                const {id, ok, result, error} = ev.data || {};
+                if (!id) return;
+                const p = pending.get(id);
+                if (!p) return;
+                pending.delete(id);
+                if (ok) p.resolve(result);
+                else p.reject(new Error(error));
+            };
+
+            return {
+                sendWithResponse(action, payload = {}, {timeout = 30000, compress = false} = {}) {
+                    return new Promise((resolve, reject) => {
+                        const id = String(idCounter++);
+                        const timer = setTimeout(() => {
+                            pending.delete(id);
+                            reject(new Error('Worker timeout'));
+                        }, timeout);
+                        
+                        pending.set(id, {
+                            resolve: (r) => {clearTimeout(timer); resolve(r);},
+                            reject: (e) => {clearTimeout(timer); reject(e);}
+                        });
+
+                        const message = {id, action, payload, meta:{ts: Date.now()}};
+                        
+                        if (compress && self.pako) {
+                            try {
+                                message.payload = pako.deflate(JSON.stringify(payload));
+                                message.compressed = true;
+                            } catch(e) {
+                                pending.delete(id);
+                                clearTimeout(timer);
+                                reject(e);
+                                return;
+                            }
+                        }
+                        
+                        worker.postMessage(message);
+                    });
+                }
+            };
+        }
+
+        // ===== UI & App Logic =====
+        const memoryCore = new MemoryCore();
+        let indexerBridge = null;
+
+        // Wait for DB to be ready
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Create indexer worker
+        const indexerWorker = new Worker('/frontend/worker_indexer.js');
+        indexerBridge = createWorkerBridge(indexerWorker);
+
+        // DOM elements
+        const atomCountEl = document.getElementById('atomCount');
+        const workerStatusEl = document.getElementById('workerStatus');
+        const dbStatusEl = document.getElementById('dbStatus');
+        const contentInput = document.getElementById('contentInput');
+        const searchInput = document.getElementById('searchInput');
+        const resultsEl = document.getElementById('results');
+        const storeBtn = document.getElementById('storeBtn');
+        const storeBulkBtn = document.getElementById('storeBulkBtn');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const syncBtn = document.getElementById('syncBtn');
+
+        // Update UI
+        function updateStats() {
+            atomCountEl.textContent = memoryCore.getCount();
+            dbStatusEl.textContent = memoryCore.db ? '✓' : '✗';
+            workerStatusEl.textContent = indexerBridge ? '✓' : '✗';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Store single atom
+        async function storeAtom() {
+            const content = contentInput.value.trim();
+            if (!content) {
+                showToast('Please enter content', 'error');
+                return;
+            }
+
+            try {
+                const atom = await memoryCore.store(content, 'user_input');
+                contentInput.value = '';
+                showToast(`Atom stored: ${atom.id}`, 'success');
+                updateStats();
+
+                // Index via worker (optional demo)
+                try {
+                    await indexerBridge.sendWithResponse('indexBatch', {
+                        batch: [atom.serialize()],
+                        attentionTerms: []
+                    }, {compress: false});
+                } catch (e) {
+                    console.warn('Worker indexing failed:', e);
+                }
+            } catch (error) {
+                console.error('Store error:', error);
+                showToast('Failed to store atom', 'error');
+            }
+        }
+
+        // Store bulk atoms
+        async function storeBulkAtoms() {
+            try {
+                showToast('Storing 50 test atoms...', 'info');
+                const atoms = [];
+                for (let i = 0; i < 50; i++) {
+                    const atom = await memoryCore.store(
+                        `Test memory ${i}: Lorem ipsum dolor sit amet. Random data ${Math.random().toString(36).slice(2)}`,
+                        'test'
+                    );
+                    atoms.push(atom.serialize());
+                }
+
+                // Batch index via worker
+                try {
+                    await indexerBridge.sendWithResponse('indexBatch', {
+                        batch: atoms,
+                        attentionTerms: ['test', 'memory']
+                    }, {compress: true});
+                } catch (e) {
+                    console.warn('Worker batch indexing failed:', e);
+                }
+
+                showToast('50 atoms stored and indexed', 'success');
+                updateStats();
+            } catch (error) {
+                console.error('Bulk store error:', error);
+                showToast('Bulk store failed', 'error');
+            }
+        }
+
+        // Search / Recall
+        async function searchMemory() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                showToast('Enter search term', 'error');
+                return;
+            }
+
+            try {
+                const results = await memoryCore.recall(query);
+                
+                if (results.length === 0) {
+                    resultsEl.innerHTML = '<div class="result-item">No results found</div>';
+                    return;
+                }
+
+                resultsEl.innerHTML = results
+                    .map(atom => `
+                        <div class="result-item">
+                            <div class="result-id">${atom.id} • ${atom.ty} • ${new Date(atom.t).toLocaleString()}</div>
+                            <div class="result-content">${atom.d}</div>
+                        </div>
+                    `)
+                    .join('');
+
+                showToast(`Found ${results.length} results`, 'success');
+            } catch (error) {
+                console.error('Search error:', error);
+                showToast('Search failed', 'error');
+            }
+        }
+
+        // Clear memory
+        async function clearMemory() {
+            if (!confirm('Clear all memory atoms?')) return;
+
+            try {
+                await memoryCore.clear();
+                resultsEl.innerHTML = '';
+                showToast('Memory cleared', 'success');
+                updateStats();
+            } catch (error) {
+                console.error('Clear error:', error);
+                showToast('Clear failed', 'error');
+            }
+        }
+
+        // Sync to backend Lifesync
+        async function syncToLifesync() {
+            try {
+                showToast('Syncing to Lifesync...', 'info');
+                const atoms = memoryCore.getAllAtoms();
+                
+                if (atoms.length === 0) {
+                    showToast('No atoms to sync', 'error');
+                    return;
+                }
+
+                // Send to backend /api/lifesync
+                const response = await fetch('/api/lifesync', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        source: 'annabelle-frontend',
+                        payload: atoms,
+                        meta: {count: atoms.length, timestamp: Date.now()}
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                showToast(`Synced! Token: ${data.signedToken?.slice(0, 20)}...`, 'success');
+            } catch (error) {
+                console.error('Sync error:', error);
+                showToast('Sync failed', 'error');
+            }
+        }
+
+        // Event listeners
+        storeBtn.addEventListener('click', storeAtom);
+        storeBulkBtn.addEventListener('click', storeBulkAtoms);
+        searchBtn.addEventListener('click', searchMemory);
+        clearBtn.addEventListener('click', clearMemory);
+        syncBtn.addEventListener('click', syncToLifesync);
+
+        contentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') storeAtom();
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchMemory();
+        });
+
+        // Initial update
+        updateStats();
+        setInterval(updateStats, 5000);
+
+        showToast('Annabelle Memory Core initialized', 'success');
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Private keys - NEVER commit these!
+keys/private.pem
+keys/public.pem
+keys/*.pem
+keys/*.key
+
+# Database files
+data/*.db
+data/*.db-journal
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
